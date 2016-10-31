@@ -1,0 +1,11 @@
+{
+  "generator-openapi-repo": {
+    "importExistingSpec": true,
+    "importedSpec": "/home/dkrzemin/projects/help.furkot.com/help/widgets/furkot-api.yaml",
+    "name": "Furkot Trips",
+    "repo": "furkot/trips-api",
+    "splitSpec": false,
+    "samples": true,
+    "installSwaggerUI": true
+  }
+}
