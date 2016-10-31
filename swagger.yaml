@@ -1,0 +1,148 @@
+swagger: '2.0'
+info:
+  description: |
+    Furkot provides Rest API to access user trip data.
+    Using Furkot API an application can list user trips and display stops for a specific trip.
+    Furkot API uses OAuth2 protocol to authorize applications to access data on behalf of users.
+  version: 1.0.0
+  title: Furkot Trips
+  contact:
+    email: trips@furkot.com
+host: trips.furkot.com
+basePath: /pub/api
+schemes:
+  - https
+security:
+  - furkot_auth_access_code:
+      - 'read:trips'
+  - furkot_auth_implicit:
+      - 'read:trips'
+externalDocs:
+  description: Furkot API description
+  url: 'https://help.furkot.com/widgets/furkot-api.html'
+paths:
+  /trip:
+    get:
+      description: list user's trips
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Trip'
+  '/trip/{trip_id}/stop':
+    get:
+      description: 'list stops for a trip identified by {trip_id}'
+      produces:
+        - application/json
+      parameters:
+        - name: trip_id
+          in: path
+          description: id of the trip
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Step'
+definitions:
+  Trip:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Unique ID of the trip
+      name:
+        type: string
+        description: name of the trip
+      description:
+        type: string
+        description: description of the trip (truncated to 200 characters)
+      begin:
+        type: string
+        format: date-time
+        description: 'begin of the trip in its local timezone as YYYY-MM-DDThh:mm'
+      end:
+        type: string
+        format: date-time
+        description: 'end of the trip in its local timezone as YYYY-MM-DDThh:mm'
+  Step:
+    type: object
+    properties:
+      name:
+        type: string
+        description: name of the stop
+      address:
+        type: string
+        description: address of the stop
+      arrival:
+        type: string
+        format: date-time
+        description: 'arrival at the stop in its local timezone as YYYY-MM-DDThh:mm'
+      departure:
+        type: string
+        format: date-time
+        description: 'departure from the stop in its local timezone as YYYY-MM-DDThh:mm'
+      nights:
+        type: integer
+        format: int64
+        description: number of nights
+      coordinates:
+        type: object
+        description: geographical coordinates of the stop
+        properties:
+          lat:
+            type: number
+            format: float
+            description: latitude
+          lon:
+            type: number
+            format: float
+            description: longitude
+      route:
+        type: object
+        description: route leading to the stop
+        properties:
+          mode:
+            type: string
+            description: travel mode
+            enum:
+              - car
+              - motorcycle
+              - bicycle
+              - walk
+              - other
+          polyline:
+            type: string
+            description: route path compatible with Google polyline encoding algorithm
+          duration:
+            type: integer
+            format: int64
+            description: route duration in seconds
+          distance:
+            type: integer
+            format: int64
+            description: route distance in meters
+      url:
+        type: string
+        description: url of the page with more information about the stop
+securityDefinitions:
+  furkot_auth_access_code:
+    type: oauth2
+    authorizationUrl: 'https://trips.furkot.com/oauth/authorize'
+    tokenUrl: 'https://trips.furkot.com/pub/api/access_token'
+    flow: accessCode
+    scopes:
+      'read:trips': list trips and stops info
+  furkot_auth_implicit:
+    type: oauth2
+    authorizationUrl: 'https://trips.furkot.com/oauth/authorize'
+    flow: implicit
+    scopes:
+      'read:trips': list users trips info
